@@ -1229,17 +1229,39 @@ std::vector<DebugModule> LldbAdapter::GetModuleList()
 		if (!module.IsValid())
 			continue;
 
-		DebugModule m;
 		SBFileSpec fileSpec = module.GetFileSpec();
 		char path[1024];
 		size_t len = fileSpec.GetPath(path, 1024);
-		m.m_name = std::string(path, len);
-		m.m_short_name = fileSpec.GetFilename();
-		SBAddress headerAddress = module.GetObjectFileHeaderAddress();
-		m.m_address = headerAddress.GetLoadAddress(m_target);
-		m.m_size = GetModuleHighestAddress(module, m_target) - m.m_address;
-		m.m_loaded = true;
-		result.push_back(m);
+		std::string modulePath = std::string(path, len);
+		std::string moduleShortName = fileSpec.GetFilename();
+
+		// Report each section as a separate module to work around macOS shared cache size issues
+		const size_t numSections = module.GetNumSections();
+		for (size_t j = 0; j < numSections; j++)
+		{
+			SBSection section = module.GetSectionAtIndex(j);
+			if (!section.IsValid())
+				continue;
+
+			uint64_t sectionLoadAddr = section.GetLoadAddress(m_target);
+			// Skip sections that are not loaded
+			if (sectionLoadAddr == LLDB_INVALID_ADDRESS)
+				continue;
+
+			DebugModule m;
+			// Include section name in the module name
+			const char* sectionName = section.GetName();
+			if (sectionName && sectionName[0] != '\0')
+				m.m_name = modulePath + " [" + sectionName + "]";
+			else
+				m.m_name = modulePath + " [section " + std::to_string(j) + "]";
+
+			m.m_short_name = moduleShortName;
+			m.m_address = sectionLoadAddr;
+			m.m_size = section.GetByteSize();
+			m.m_loaded = true;
+			result.push_back(m);
+		}
 	}
 	return result;
 }
