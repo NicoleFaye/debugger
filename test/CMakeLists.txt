@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 # This project builds the test binaries for the debugger unit test. It does not run the test.
 project(debugger-test-binaries C CXX)
 
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
+
 if (ARCH STREQUAL "x86_64")
 	add_definitions(-DARCH_IS_X64)
 elseif(ARCH STREQUAL "x86")
@@ -187,7 +189,7 @@ if (ARCH STREQUAL "x86_64")
 		if(APPLE)
 			add_custom_command(TARGET analysis_propagation POST_BUILD
 					COMMAND strip "$<TARGET_FILE:analysis_propagation>"
-					COMMAND python3 src/rm_func_starts.py "$<TARGET_FILE:analysis_propagation>")
+					COMMAND ${Python3_EXECUTABLE} src/rm_func_starts.py "$<TARGET_FILE:analysis_propagation>")
 		else()
 			add_custom_command(TARGET analysis_propagation POST_BUILD
 					COMMAND strip "$<TARGET_FILE:analysis_propagation>")
@@ -208,7 +210,7 @@ if (ARCH STREQUAL "x86_64")
 	if(APPLE)
 		add_custom_command(TARGET missing_switch_case POST_BUILD
 				COMMAND strip "$<TARGET_FILE:missing_switch_case>"
-				COMMAND python3 src/rm_func_starts.py "$<TARGET_FILE:missing_switch_case>")
+				COMMAND ${Python3_EXECUTABLE} src/rm_func_starts.py "$<TARGET_FILE:missing_switch_case>")
 	else()
 		add_custom_command(TARGET missing_switch_case POST_BUILD
 				COMMAND strip "$<TARGET_FILE:missing_switch_case>")
@@ -228,7 +230,7 @@ if (ARCH STREQUAL "x86_64")
 	if(APPLE)
 		add_custom_command(TARGET undiscovered_func POST_BUILD
 				COMMAND strip "$<TARGET_FILE:undiscovered_func>"
-				COMMAND python3 src/rm_func_starts.py "$<TARGET_FILE:undiscovered_func>")
+				COMMAND ${Python3_EXECUTABLE} src/rm_func_starts.py "$<TARGET_FILE:undiscovered_func>")
 	else()
 		add_custom_command(TARGET undiscovered_func POST_BUILD
 				COMMAND strip "$<TARGET_FILE:undiscovered_func>")
@@ -249,7 +251,7 @@ if (ARCH STREQUAL "x86_64")
 		if (APPLE)
 			add_custom_command(TARGET undiscovered_func2 POST_BUILD
 					COMMAND strip "$<TARGET_FILE:undiscovered_func2>"
-					COMMAND python3 src/rm_func_starts.py "$<TARGET_FILE:undiscovered_func2>")
+					COMMAND ${Python3_EXECUTABLE} src/rm_func_starts.py "$<TARGET_FILE:undiscovered_func2>")
 		else()
 			add_custom_command(TARGET undiscovered_func2 POST_BUILD
 					COMMAND strip "$<TARGET_FILE:undiscovered_func2>")
@@ -270,7 +272,7 @@ if (ARCH STREQUAL "x86_64")
 	if (APPLE)
 		add_custom_command(TARGET indirect_calls POST_BUILD
 				COMMAND strip "$<TARGET_FILE:indirect_calls>"
-				COMMAND python3 src/rm_func_starts.py "$<TARGET_FILE:indirect_calls>")
+				COMMAND ${Python3_EXECUTABLE} src/rm_func_starts.py "$<TARGET_FILE:indirect_calls>")
 	else()
 		add_custom_command(TARGET indirect_calls POST_BUILD
 				COMMAND strip "$<TARGET_FILE:indirect_calls>")
