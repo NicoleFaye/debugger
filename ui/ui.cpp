@@ -1835,7 +1835,7 @@ extern "C"
 #ifndef DEMO_EDITION
 	BINARYNINJAPLUGIN void CorePluginDependencies()
 	{
-		SetCurrentPluginLoadOrder(LatePluginLoadOrder);
+		SetCurrentPluginLoadOrder(ScriptPluginLoadPhase);
 	}
 #endif
 
